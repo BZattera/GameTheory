@@ -1,28 +1,28 @@
-import smtplib
+import yagmail
 
-gmail_user = 'benedetta.zattera@gmail.com'
-gmail_password = 'benedetta123'
 
-sent_from = gmail_user
-to = ['benedetta.zattera@gmail.com']
-subject = 'OMG Super Important Message'
-body = 'Hello'
 
-email_text = """\
-From: %s
-To: %s
-Subject: %s
+def send_email_end(self):
+    sender_email = "benedetta.zattera@gmail.com"
+    receiver_email = 'topran.pp@gmail.com'
+    subject = "Your lightsheet experiment is complete"
+    # TODO: Add the password in the lightsheet computer
+    sender_password = "benedetta123"
 
-%s
-""" % (sent_from, ", ".join(to), subject, body)
+    yag = yagmail.SMTP(user=sender_email, password=sender_password)
 
-try:
-    server = smtplib.SMTP('smtp.gmail.com:587')
-    server.ehlo()
-    server.login(gmail_user, gmail_password)
-    server.sendmail(sent_from, to, email_text)
-    server.close()
+    body = [
+        "Hey!",
+        "\n",
+        "Your lightsheet experiment has completed and was a success! Come pick up your little fish",
+        "\n"
+        "Always yours,",
+        "fishgitbot"
+    ]
 
-    print ('Email sent!')
-except:
-    print ('Something went wrong...')
+    yag.send(
+        to=receiver_email,
+        subject=subject,
+        contents=body,
+        attachments=None
+    )

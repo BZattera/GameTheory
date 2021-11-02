@@ -119,6 +119,47 @@ def display_feedback(response, x_coord, y_coord, comp, screen):
         pygame.display.flip()
     return outcome
 
+class MutableSlice(object):
+    def __init__(self, baselist, begin, end=None):
+        self._base = baselist
+        self._begin = begin
+        self._end = len(baselist) if end is None else end
+
+    def __len__(self):
+        return self._end - self._begin
+
+    def __getitem__(self, i):
+        return self._base[self._begin + i]
+
+    def __setitem__(self, i, val):
+        self._base[i + self._begin] = val
+
+
+def weighted_computer_choice(select, all_trial_outcome, all_player_choice):
+    # with this first part of the code, I try to anticipate the next player's choice
+
+    # if the player wins, there is higher probability he will repeat the choice
+    if all_trial_outcome[-1] == 'win':
+        if all_player_choice[-1] == 'scissor':
+            # when the player wins with scissor, he's more likely to repeat his choice =>
+            # to win, we have to mostly go for rock
+            choice = random.choices(select, weights=(0.25, 0.25, 0.5), k=1)
+        elif all_player_choice[-1] == 'paper':
+            # when the player wins with paper, he's more likely to repeat his choice =>
+            # to win, we have to mostly go for scissor
+            choice = random.choices(select, weights=(0.5, 0.25, 0.25), k=1)
+        elif all_player_choice[-1] == 'rock':
+            # when the player wins with rock, he's more likely to repeat his choice =>
+            # to win, we have to mostly go for paper
+            choice = random.choices(select, weights=(0.25, 0.5, 0.25), k=1)
+
+    # if the player doesn't win, then he won't prefer anything (the choice will be random)
+    # in this case, the optimal solution is to go random
+    else:
+        choice = random.choices(select)
+
+    return choice[0]
+
 
 pygame.init()
 width = 750;
@@ -130,6 +171,7 @@ screen = pygame.display.set_mode((width, height), pygame.RESIZABLE)
 scissor = pygame.transform.scale(pygame.image.load("scissor1.jpg").convert(), (pic_dim, pic_dim))
 paper = pygame.transform.scale(pygame.image.load("paper1.jpg").convert(), (pic_dim, pic_dim))
 rock = pygame.transform.scale(pygame.image.load("rock1.jpg").convert(), (pic_dim, pic_dim))
+# redSquare = pygame.transform.scale(redSquare, (150, 150))
 
 distance = 180;
 x = (width - 3 * distance) / 2;  # x coordnate of image
@@ -151,7 +193,6 @@ screen.blit(paper, (x_paper, y_computer))  # paint to screen
 screen.blit(rock, (x_rock, y_computer))  # paint to screen
 font_computer = pygame.font.SysFont("Arial", 50)
 computer = ("Computer's choice")
-
 blit_text(screen, computer, (x + 100, (y_computer - 80)), font_computer)
 
 # stimuli for the player
@@ -174,12 +215,28 @@ all_computer_choice = []
 running_trial = []
 all_trial_outcome = []
 
-while (running < n_trial):
+original_list = list(['random_choice', 'weighted_choice'] * 30)  # creating a list of 60 elements (50% 0, 50% 1)
+
+slice = MutableSlice(original_list, 1)  # selecting the part of the list I want to shuffle (all but the first element)
+random.shuffle(slice)  # shuffleing the slice
+
+print(original_list)
+
+while (running < len(original_list)):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = n_trial
         if event.type == pygame.MOUSEBUTTONDOWN:
+            running_trial.append(running)
 
+            # Randomly selects option for computer. I select this case for the 50% of the case and if the
+            if original_list[running] == 'random_choice':
+                computer = random.choice(select)
+                all_computer_choice.append(computer)
+            elif original_list[running] == 'weighted_choice':
+                computer = weighted_computer_choice(select, all_trial_outcome, all_player_choice)
+                print(computer)
+                all_computer_choice.append(computer)
 
             # Set the x, y postions of the mouse click
             x_pos, y_pos = pygame.mouse.get_pos()
@@ -188,31 +245,19 @@ while (running < n_trial):
                 print('clicked on scissor')
                 all_trial_outcome.append(display_feedback('scissor', x, y, computer, screen))
                 all_player_choice.append('scissor')
-                running_trial.append(running)
-                computer = random.choice(select)  # Randomly selects option for computer
-                all_computer_choice.append(computer)
 
-            elif (x_pos > x_paper and x_pos < x_paper + pic_dim
-                  and y_pos > y_paper and y_pos < y_paper + pic_dim):
+            elif (x_pos > x_paper and x_pos < x_paper + pic_dim and y_pos > y_paper and y_pos < y_paper + pic_dim):
                 print('clicked on paper')
                 all_trial_outcome.append(display_feedback('paper', x_paper, y_paper, computer, screen))
                 all_player_choice.append('paper')
-                running_trial.append(running)
-                computer = random.choice(select)  # Randomly selects option for computer
-                all_computer_choice.append(computer)
 
             elif (x_pos > x_rock and x_pos < x_rock + pic_dim and y_pos > y_rock and y_pos < y_rock + pic_dim):
                 print('clicked on rock')
                 all_trial_outcome.append(display_feedback('rock', x_rock, y_rock, computer, screen))
                 all_player_choice.append('rock')
-                running_trial.append(running)
-                computer = random.choice(select)  # Randomly selects option for computer
-                all_computer_choice.append(computer)
             running += 1  # incrementing the counter
 
-# loop over, quite pygame
-pygame.quit()
-
 df = pd.DataFrame({'trial_numb': running_trial, 'player_choice': all_player_choice,
-                   'computer_choice': all_computer_choice, 'outcome': all_trial_outcome})
+                   'computer_choice': all_computer_choice, 'outcome': all_trial_outcome,
+                   'stimulus_kind': original_list})
 df.to_csv('user1.csv')
