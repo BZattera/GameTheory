@@ -2,6 +2,10 @@ import time
 import pygame
 import random
 import pandas as pd
+from datetime import datetime
+import yagmail
+import feather
+
 
 
 def blit_text(surface, text, pos, font, color=pygame.Color('black')):
@@ -49,17 +53,17 @@ def win(player_choice, computer):
     final_result = []
 
     if player_choice == computer:
-        print('repeat game!')
+        #print('repeat game!')
         final_result = 'draw'
     elif (player_choice == 'scissor' and computer == 'paper'
     ) or (player_choice == 'paper' and computer == 'rock'
     ) or (player_choice == 'rock' and computer == 'scissor'):
-        print('Good! You won!')
+        #print('Good! You won!')
         final_result = 'win'
 
     elif (player_choice == 'scissor' and computer == 'rock'
     ) or (player_choice == 'paper' and computer == 'scissor') or (player_choice == 'rock' and computer == 'paper'):
-        print('Try again')
+        #print('Try again')
         final_result = 'lose'
 
     return final_result
@@ -91,7 +95,9 @@ def display_feedback(response, x_coord, y_coord, comp, screen):
         pygame.draw.rect(screen, [0, 255, 0], [x_coord, y_coord, pic_dim, pic_dim], 4)  # green outline for the player
         pygame.draw.rect(screen, [255, 0, 0], [x_comp, y_comp, pic_dim, pic_dim], 4)  # red outline for the computer
         pygame.display.flip()
-        time.sleep(2)
+        time.sleep(0.7)
+        # display win window
+        display_win(screen, width, height, 'u_won.png')
         pygame.draw.rect(screen, [255, 255, 255], [x_coord, y_coord, pic_dim, pic_dim], 4)  # remove player's outline
         pygame.draw.rect(screen, [255, 255, 255], [x_comp, y_comp, pic_dim, pic_dim], 4)  # remove computer's outline
         pygame.display.flip()
@@ -102,7 +108,9 @@ def display_feedback(response, x_coord, y_coord, comp, screen):
         pygame.draw.rect(screen, [255, 0, 0], [x_coord, y_coord, pic_dim, pic_dim], 4)  # red outline for the player
         pygame.draw.rect(screen, [0, 255, 0], [x_comp, y_comp, pic_dim, pic_dim], 4)  # green outline for the computer
         pygame.display.flip()
-        time.sleep(2)
+        time.sleep(0.7)
+        # display win window
+        display_win(screen, width, height, 'u_lose.jpg')
         pygame.draw.rect(screen, [255, 255, 255], [x_coord, y_coord, pic_dim, pic_dim], 4)  # remove player's outline
         pygame.draw.rect(screen, [255, 255, 255], [x_comp, y_comp, pic_dim, pic_dim], 4)  # remove computer's outline
         pygame.display.flip()
@@ -113,11 +121,50 @@ def display_feedback(response, x_coord, y_coord, comp, screen):
         pygame.draw.rect(screen, [0, 0, 255], [x_coord, y_coord, pic_dim, pic_dim], 4)
         pygame.draw.rect(screen, [0, 0, 255], [x_comp, y_comp, pic_dim, pic_dim], 4)  # red outline for the computer
         pygame.display.flip()
-        time.sleep(2)
+        time.sleep(0.7)
+        # display win window
+        display_win(screen, width, height, 'tie_game.png')
         pygame.draw.rect(screen, [255, 255, 255], [x_coord, y_coord, pic_dim, pic_dim], 4)  # remove player's outline
         pygame.draw.rect(screen, [255, 255, 255], [x_comp, y_comp, pic_dim, pic_dim], 4)  # remove computer's outline
         pygame.display.flip()
     return outcome
+
+
+def display_win(screen, width, height, img):
+    screen.fill([255, 255, 255])
+    rew_pic_dim = 250
+    x_pos = width/2 + rew_pic_dim/2
+    y_pos = height / 2 + rew_pic_dim / 2
+    display_img = pygame.transform.scale(pygame.image.load(img).convert(), (x_pos, y_pos))
+    screen.blit(display_img, (x, y_computer))  # paint to screen
+    pygame.display.flip()  # paint screen one time
+    time.sleep(2)
+    screen.fill((255, 255, 255))
+
+    pygame.display.flip()  # paint screen one time
+    display_choice()
+
+
+
+def display_choice():
+    # stimuli for the computer
+    screen.blit(scissor, (x, y_computer))  # paint to screen
+    screen.blit(paper, (x_paper, y_computer))  # paint to screen
+    screen.blit(rock, (x_rock, y_computer))  # paint to screen
+    font_computer = pygame.font.SysFont("Arial", 50)
+    computer = ("Computer's choice")
+    blit_text(screen, computer, (x + 100, (y_computer - 80)), font_computer)
+
+    # stimuli for the player
+    screen.blit(scissor, (x, y))  # paint to screen
+    screen.blit(paper, (x_paper, y_paper))  # paint to screen
+    screen.blit(rock, (x_rock, y_rock))  # paint to screen
+    font_player = pygame.font.SysFont("Arial", 50)
+    player = ("Click on your move")
+    blit_text(screen, player, (x + 100, (y - 80)), font_player)
+
+    pygame.display.flip()  # paint screen one time
+
 
 class MutableSlice(object):
     def __init__(self, baselist, begin, end=None):
@@ -215,12 +262,11 @@ all_computer_choice = []
 running_trial = []
 all_trial_outcome = []
 
-original_list = list(['random_choice', 'weighted_choice'] * 30)  # creating a list of 60 elements (50% 0, 50% 1)
+original_list = list(['random_choice', 'weighted_choice'] * n_trial)  # creating a list of 60 elements (50% random, 50% weighted)
 
 slice = MutableSlice(original_list, 1)  # selecting the part of the list I want to shuffle (all but the first element)
 random.shuffle(slice)  # shuffleing the slice
 
-print(original_list)
 
 while (running < len(original_list)):
     for event in pygame.event.get():
@@ -235,24 +281,24 @@ while (running < len(original_list)):
                 all_computer_choice.append(computer)
             elif original_list[running] == 'weighted_choice':
                 computer = weighted_computer_choice(select, all_trial_outcome, all_player_choice)
-                print(computer)
+                #print(computer)
                 all_computer_choice.append(computer)
 
             # Set the x, y postions of the mouse click
             x_pos, y_pos = pygame.mouse.get_pos()
 
             if (x_pos > x and x_pos < x + pic_dim and y_pos > y and y_pos < y + pic_dim):
-                print('clicked on scissor')
+                #print('clicked on scissor')
                 all_trial_outcome.append(display_feedback('scissor', x, y, computer, screen))
                 all_player_choice.append('scissor')
 
             elif (x_pos > x_paper and x_pos < x_paper + pic_dim and y_pos > y_paper and y_pos < y_paper + pic_dim):
-                print('clicked on paper')
+                #print('clicked on paper')
                 all_trial_outcome.append(display_feedback('paper', x_paper, y_paper, computer, screen))
                 all_player_choice.append('paper')
 
             elif (x_pos > x_rock and x_pos < x_rock + pic_dim and y_pos > y_rock and y_pos < y_rock + pic_dim):
-                print('clicked on rock')
+                #print('clicked on rock')
                 all_trial_outcome.append(display_feedback('rock', x_rock, y_rock, computer, screen))
                 all_player_choice.append('rock')
             running += 1  # incrementing the counter
@@ -260,4 +306,28 @@ while (running < len(original_list)):
 df = pd.DataFrame({'trial_numb': running_trial, 'player_choice': all_player_choice,
                    'computer_choice': all_computer_choice, 'outcome': all_trial_outcome,
                    'stimulus_kind': original_list})
-df.to_csv('user1.csv')
+
+
+datestring = datetime.strftime(datetime.now(), '%Y_%m_%d_%H_%M_%S')
+df.to_feather(datestring + '.ftr')
+
+sender_email = "felsenberglab@gmail.com"
+receiver_email = 'benedetta.zattera@gmail.com'
+subject = "A new person player RPS"
+
+sender_password = "Flytrap.1"
+
+yag = yagmail.SMTP(user=sender_email, password=sender_password)
+body = [
+    "Whohoooo!",
+    "\n",
+    "You have new data for your RPS experiment!",
+    "\n"
+    "Hurry up and analyze them!"]
+
+yag.send(
+    to=receiver_email,
+    subject=subject,
+    contents=body,
+    attachments=(datestring + '.ftr')
+)
