@@ -303,6 +303,16 @@ while (running < len(original_list)):
                 all_player_choice.append('rock')
             running += 1  # incrementing the counter
 
+<<<<<<< HEAD
+display_bye()
+print(len(running_trial))
+print(len(all_player_choice))
+print(len(all_computer_choice))
+print(len(all_trial_outcome))
+print(len(original_list))
+
+=======
+>>>>>>> parent of 9cfd0f1 (rps update)
 df = pd.DataFrame({'trial_numb': running_trial, 'player_choice': all_player_choice,
                    'computer_choice': all_computer_choice, 'outcome': all_trial_outcome,
                    'stimulus_kind': original_list})
