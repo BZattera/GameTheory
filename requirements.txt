@@ -3,4 +3,4 @@ pygame
 pandas
 datetime
 yagmail
-setuptoolss
+
