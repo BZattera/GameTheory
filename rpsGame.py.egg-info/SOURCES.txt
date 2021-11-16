@@ -1,8 +1,0 @@
-README.md
-setup.py
-rpsGame.py.egg-info/PKG-INFO
-rpsGame.py.egg-info/SOURCES.txt
-rpsGame.py.egg-info/dependency_links.txt
-rpsGame.py.egg-info/not-zip-safe
-rpsGame.py.egg-info/requires.txt
-rpsGame.py.egg-info/top_level.txt

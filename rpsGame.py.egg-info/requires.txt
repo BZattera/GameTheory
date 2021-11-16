@@ -1,5 +1,0 @@
-times
-pygame
-pandas
-datetime
-yagmail
