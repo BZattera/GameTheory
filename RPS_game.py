@@ -138,12 +138,38 @@ def display_win(screen, width, height, img):
     display_img = pygame.transform.scale(pygame.image.load(img).convert(), (x_pos, y_pos))
     screen.blit(display_img, (x, y_computer))  # paint to screen
     pygame.display.flip()  # paint screen one time
-    time.sleep(2)
+    time.sleep(1.3)
+    screen.fill((255, 255, 255))
+
+    pygame.display.flip()  # paint screen one time
+    countdown(screen, width, height) # adding the countdown for the next trial
+    display_choice() # display the original screen
+
+def countdown(screen, width, height):
+
+    rew_pic_dim = 250
+    x_pos = width/2 + rew_pic_dim/2
+    y_pos = height / 2 + rew_pic_dim / 2
+    screen.fill([255, 255, 255])
+    display_img = pygame.transform.scale(pygame.image.load('three.PNG').convert(), (x_pos, y_pos))
+    screen.blit(display_img, (x, y_computer))  # paint to screen
+    pygame.display.flip()  # paint screen one time
+    time.sleep(1)
+    screen.fill([255, 255, 255])
+    display_img = pygame.transform.scale(pygame.image.load('two.PNG').convert(), (x_pos, y_pos))
+    screen.blit(display_img, (x, y_computer))  # paint to screen
+    pygame.display.flip()  # paint screen one time
+    time.sleep(1)
+    screen.fill([255, 255, 255])
+    display_img = pygame.transform.scale(pygame.image.load('one.PNG').convert(), (x_pos, y_pos))
+    screen.blit(display_img, (x, y_computer))  # paint to screen
+    pygame.display.flip()  # paint screen one time
+    time.sleep(1)
+
     screen.fill((255, 255, 255))
 
     pygame.display.flip()  # paint screen one time
     display_choice()
-
 
 
 def display_choice():
