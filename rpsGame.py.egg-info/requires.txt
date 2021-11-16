@@ -3,5 +3,3 @@ pygame
 pandas
 datetime
 yagmail
-feather
-pyarrow
