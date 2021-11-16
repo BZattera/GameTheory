@@ -1,0 +1,7 @@
+time
+pygame
+random
+pandas
+datetime
+yagmail
+setuptoolss
