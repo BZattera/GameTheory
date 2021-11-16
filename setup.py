@@ -10,7 +10,7 @@ with open("README.md") as f:
     long_description = f.read()
 
 setup(
-    name="RPS",
+    name="rps_game",
     version="0.1.0",
     description="Rock Paper Scissors",
     install_requires=requirements,
